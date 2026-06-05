@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sensi Generator</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
+.screen{display:none;width:100%;max-width:400px}
+.screen.active{display:block}
+.box{background:#111;padding:25px;border-radius:12px;border:2px solid #333}
+.top{display:flex;gap:10px;margin-bottom:20px}
+.top input{flex:1;background:#222;border:1px solid #444;color:#fff;padding:12px;border-radius:6px;font-size:14px;outline:none}
+.top button{background:#0ff;color:#000;border:none;padding:12px 20px;border-radius:6px;font-weight:700;cursor:pointer;font-size:14px}
+.row{margin:15px 0}
+.row label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;color:#aaa}
+.row input[type=range]{width:100%;height:5px;background:#222;border-radius:5px;-webkit-appearance:none}
+.row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:#0ff;border-radius:50%;cursor:pointer}
+.bottom{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.card{background:#222;padding:15px;border-radius:8px;text-align:center}
+.card small{color:#777;font-size:11px}
+.card h3{margin-top:5px;font-size:22px;color:#0ff}
+.ad-box{background:#111;padding:40px 20px;border-radius:12px;text-align:center;border:2px dashed #333}
+.ad-box h2{color:#0ff;margin-bottom:15px}
+.ad-box p{color:#aaa;font-size:13px;margin-bottom:20px}
+.btn{background:#0ff;color:#000;border:none;padding:14px 30px;border-radius:8px;font-weight:700;cursor:pointer;font-size:15px;width:100%}
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1: AD 1 -->
+<div class="screen active" id="ad1">
+  <div class="ad-box">
+    <h2>Support Our Site</h2>
+    <p>Click below to continue. This helps us keep the generator free.</p>
+    <!-- PASTE YOUR AD CODE HERE -->
+    <div style="background:#222;height:200px;display:flex;align-items:center;justify-content:center;color:#555;margin:20px 0">AD CODE 1 HERE</div>
+    <button class="btn" onclick="showScreen('ad2')">Continue →</button>
+  </div>
+</div>
+
+<!-- SCREEN 2: AD 2 -->
+<div class="screen" id="ad2">
+  <div class="ad-box">
+    <h2>One More Step</h2>
+    <p>Almost there! View this ad to unlock the generator.</p>
+    <!-- PASTE YOUR AD CODE HERE -->
+    <div style="background:#222;height:200px;display:flex;align-items:center;justify-content:center;color:#555;margin:20px 0">AD CODE 2 HERE</div>
+    <button class="btn" onclick="showScreen('gen')">Show Generator →</button>
+  </div>
+</div>
+
+<!-- SCREEN 3: GENERATOR -->
+<div class="screen" id="gen">
+  <div class="box">
+    <div class="top">
+      <input type="text" id="phone" placeholder="Enter phone name">
+      <button onclick="gen()">GENERATE</button>
+    </div>
+
+    <div class="row"><label>GENERAL <span id="g">100</span></label><input type="range" id="general" min="80" max="110" value="100"></div>
+    <div class="row"><label>RED DOT <span id="r">95</span></label><input type="range" id="reddot" min="85" max="110" value="95"></div>
+    <div class="row"><label>2X SCOPE <span id="x2">90</span></label><input type="range" id="scope2x" min="80" max="105" value="90"></div>
+    <div class="row"><label>4X SCOPE <span id="x4">85</span></label><input type="range" id="scope4x" min="75" max="100" value="85"></div>
+    <div class="row"><label>SNIPER SCOPE <span id="s">60</span></label><input type="range" id="sniper" min="50" max="75" value="60"></div>
+    <div class="row"><label>FREE LOOK <span id="f">75</span></label><input type="range" id="free" min="65" max="90" value="75"></div>
+
+    <div class="bottom">
+      <div class="card"><small>DPI</small><h3 id="dpi">N/A</h3></div>
+      <div class="card"><small>BUTTON %</small><h3 id="btn">55%</h3></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+['general','reddot','scope2x','scope4x','sniper','free'].forEach(id=>{
+  document.getElementById(id).oninput = e => {
+    let short = id=='general'?'g':id=='reddot'?'r':id=='scope2x'?'x2':id=='scope4x'?'x4':id=='sniper'?'s':'f';
+    document.getElementById(short).textContent = e.target.value;
+  }
+});
+
+function hashCode(str){
+  let hash = 0;
+  for(let i=0; i<str.length; i++){
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash);
+}
+
+function randSeed(seed, min, max){
+  let x = Math.sin(seed) * 10000;
+  return Math.floor((x - Math.floor(x)) * (max - min + 1)) + min;
+}
+
+function gen(){
+  let phone = document.getElementById('phone').value.trim().toLowerCase();
+  if(!phone){ alert('Enter phone name first'); return; }
+  
+  let seed = hashCode(phone);
+  
+  set('general', randSeed(seed+1, 95, 110));
+  set('reddot', randSeed(seed+2, 90, 105));
+  set('scope2x', randSeed(seed+3, 85, 100));
+  set('scope4x', randSeed(seed+4, 80, 95));
+  set('sniper', randSeed(seed+5, 55, 70));
+  set('free', randSeed(seed+6, 70, 85));
+  
+  document.getElementById('dpi').textContent = randSeed(seed+7, 650, 800);
+  document.getElementById('btn').textContent = randSeed(seed+8, 50, 60) + '%';
+}
+
+function set(id,val){
+  document.getElementById(id).value = val;
+  let short = id=='general'?'g':id=='reddot'?'r':id=='scope2x'?'x2':id=='scope4x'?'x4':id=='sniper'?'s':'f';
+  document.getElementById(short).textContent = val;
+}
+</script>
+</body>
+</html>
