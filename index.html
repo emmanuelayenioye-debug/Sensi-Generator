@@ -28,6 +28,8 @@ body{background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);color:#fff;fon
 .ad-box p{color:#94a3b8;font-size:13px;margin-bottom:20px;line-height:1.5}
 .btn{background:linear-gradient(135deg, #25D366 0%, #20BA5A 100%);color:#fff;border:none;padding:16px 30px;border-radius:12px;font-weight:700;cursor:pointer;font-size:15px;width:100%;box-shadow:0 4px 16px rgba(37,211,102,0.35);transition:0.2s}
 .btn:active{transform:scale(0.97)}
+.btn:disabled{background:#334155;box-shadow:none;cursor:not-allowed}
+.timer{color:#25D366;font-size:14px;margin-top:10px;font-weight:700}
 </style>
 </head>
 <body>
@@ -36,10 +38,9 @@ body{background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);color:#fff;fon
 <div class="screen active" id="ad1">
   <div class="ad-box">
     <h2>Support Our Site</h2>
-    <p>Click below to continue. This helps us keep the generator free.</p>
-    <!-- PASTE YOUR AD CODE HERE -->
+    <p>Please wait 5 seconds. This helps us keep the generator free.</p>
     <div style="background:#0f172a;height:200px;display:flex;align-items:center;justify-content:center;color:#555;margin:20px 0;border-radius:12px;border:1px dashed #334155">AD CODE 1 HERE</div>
-    <button class="btn" onclick="showScreen('ad2')">Continue →</button>
+    <button class="btn" id="btn1" onclick="showScreen('ad2')" disabled>Wait <span id="timer1">5</span>s...</button>
   </div>
 </div>
 
@@ -47,10 +48,9 @@ body{background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);color:#fff;fon
 <div class="screen" id="ad2">
   <div class="ad-box">
     <h2>One More Step</h2>
-    <p>Almost there! View this ad to unlock the generator.</p>
-    <!-- PASTE YOUR AD CODE HERE -->
+    <p>Almost there! Wait 5 seconds to unlock the generator.</p>
     <div style="background:#0f172a;height:200px;display:flex;align-items:center;justify-content:center;color:#555;margin:20px 0;border-radius:12px;border:1px dashed #334155">AD CODE 2 HERE</div>
-    <button class="btn" onclick="showScreen('gen')">Show Generator →</button>
+    <button class="btn" id="btn2" onclick="showScreen('gen')" disabled>Wait <span id="timer2">5</span>s...</button>
   </div>
 </div>
 
@@ -77,9 +77,37 @@ body{background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);color:#fff;fon
 </div>
 
 <script>
+// Run timer for ad1 as soon as page loads
+window.onload = function(){
+  startTimer('btn1', 'timer1', 5);
+}
+
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  
+  // Start timer when ad screen shows
+  if(id === 'ad2') startTimer('btn2', 'timer2', 5);
+}
+
+function startTimer(btnId, timerId, seconds){
+  let btn = document.getElementById(btnId);
+  let timer = document.getElementById(timerId);
+  if(!btn || !timer) return;
+  
+  let count = seconds;
+  btn.disabled = true;
+  timer.textContent = count;
+  
+  let interval = setInterval(()=>{
+    count--;
+    timer.textContent = count;
+    if(count <= 0){
+      clearInterval(interval);
+      btn.disabled = false;
+      btn.innerHTML = btnId === 'btn2' ? 'Show Generator →' : 'Continue →';
+    }
+  }, 1000);
 }
 
 ['general','reddot','scope2x','scope4x','sniper','free'].forEach(id=>{
