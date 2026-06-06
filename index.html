@@ -10,10 +10,10 @@ body{background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);color:#fff;fon
 .screen{display:none;width:100%;max-width:400px}
 .screen.active{display:block}
 .box{background:#1e293b;padding:25px;border-radius:16px;border:1px solid #334155;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
-.top{display:flex;gap:10px;margin-bottom:20px}
-.top input{flex:1;background:#0f172a;border:1px solid #334155;color:#fff;padding:14px;border-radius:10px;font-size:14px;outline:none;transition:0.2s}
-.top input:focus{border-color:#25D366}
-.top button{background:linear-gradient(135deg, #25D366 0%, #20BA5A 100%);color:#fff;border:none;padding:14px 22px;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px;box-shadow:0 4px 12px rgba(37,211,102,0.3);transition:0.2s}
+.top{display:flex;gap:10px;margin-bottom:5px}
+.top select, .top input{flex:1;max-width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:14px;border-radius:10px;font-size:14px;outline:none;transition:0.2s;cursor:pointer;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
+.top select:focus, .top input:focus{border-color:#25D366}
+.top button{background:linear-gradient(135deg, #25D366 0%, #20BA5A 100%);color:#fff;border:none;padding:14px 22px;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px;box-shadow:0 4px 12px rgba(37,211,102,0.3);transition:0.2s;white-space:nowrap}
 .top button:active{transform:scale(0.97)}
 .row{margin:18px 0}
 .row label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;color:#cbd5e1}
@@ -58,9 +58,27 @@ body{background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);color:#fff;fon
 <div class="screen" id="gen">
   <div class="box">
     <div class="top">
-      <input type="text" id="phone" placeholder="Enter phone name">
+      <select id="phone" onchange="toggleOtherInput()">
+        <option value="">Select Phone Model</option>
+        <option value="group_snap680">Snapdragon 680/4Gen2</option>
+        <option value="group_g88">Helio G88</option>
+        <option value="group_g85">Helio G85</option>
+        <option value="group_lowend">Low End 3GB RAM</option>
+        <option value="group_flagship">Flagship Android</option>
+        <option value="group_iphone">iPhone 12+</option>
+        <option value="other">Other Phone</option>
+      </select>
       <button onclick="gen()">GENERATE</button>
     </div>
+
+    <small style="color:#94a3b8;font-size:11px;margin-bottom:15px;display:block;line-height:1.4">
+      Snap 680: Redmi Note 11/12/13, Samsung A13/A14/A15<br>
+      Flagship Android: S22/S23, OnePlus, Poco F5<br>
+      iPhone: No DPI setting on iOS
+    </small>
+
+    <input type="text" id="otherPhoneInput" placeholder="Type your exact phone model..." 
+    style="display:none;width:100%;background:#0f172a;border:1px solid #334155;color:#fff;padding:14px;border-radius:10px;font-size:14px;outline:none;margin-bottom:15px">
 
     <div class="row"><label>GENERAL <span id="g">100</span></label><input type="range" id="general" min="80" max="110" value="100"></div>
     <div class="row"><label>RED DOT <span id="r">95</span></label><input type="range" id="reddot" min="85" max="110" value="95"></div>
@@ -73,11 +91,22 @@ body{background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%);color:#fff;fon
       <div class="card"><small>DPI</small><h3 id="dpi">N/A</h3></div>
       <div class="card"><small>BUTTON %</small><h3 id="btn">55%</h3></div>
     </div>
+
+    <div style="margin-top:20px;padding:15px;background:#0f172a;border-radius:12px;border:1px solid #334155">
+      <p style="font-size:12px;color:#94a3b8;line-height:1.6;text-align:center;margin:0">
+        ⚠️ <b style="color:#25D366">Sensi not working?</b><br>
+        1. Close Free Fire completely from recent apps<br>
+        2. Android: Set DPI to <b style="color:#fff">650-800</b> in Phone Settings<br>
+        3. iPhone: No DPI setting, use sensi as is<br>
+        4. Test in Training Ground first
+      </p>
+    </div>
+
+    <p style="text-align:center;font-size:11px;color:#64748b;margin-top:12px">Works on all Android + iPhone</p>
   </div>
 </div>
 
 <script>
-// Run timer for ad1 as soon as page loads
 window.onload = function(){
   startTimer('btn1', 'timer1', 5);
 }
@@ -86,7 +115,6 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   
-  // Start timer when ad screen shows
   if(id === 'ad2') startTimer('btn2', 'timer2', 5);
 }
 
@@ -110,6 +138,17 @@ function startTimer(btnId, timerId, seconds){
   }, 1000);
 }
 
+function toggleOtherInput(){
+  let phone = document.getElementById('phone').value;
+  let otherInput = document.getElementById('otherPhoneInput');
+  
+  if(phone === 'other'){
+    otherInput.style.display = 'block';
+  } else {
+    otherInput.style.display = 'none';
+  }
+}
+
 ['general','reddot','scope2x','scope4x','sniper','free'].forEach(id=>{
   document.getElementById(id).oninput = e => {
     let short = id=='general'?'g':id=='reddot'?'r':id=='scope2x'?'x2':id=='scope4x'?'x4':id=='sniper'?'s':'f';
@@ -130,21 +169,104 @@ function randSeed(seed, min, max){
   return Math.floor((x - Math.floor(x)) * (max - min + 1)) + min;
 }
 
+function resetSliders(){
+  ['general','reddot','scope2x','scope4x','sniper','free'].forEach(id=>{
+    document.getElementById(id).value = 0;
+    let short = id=='general'?'g':id=='reddot'?'r':id=='scope2x'?'x2':id=='scope4x'?'x4':id=='sniper'?'s':'f';
+    document.getElementById(short).textContent = 0;
+  });
+  document.getElementById('dpi').textContent = '0';
+  document.getElementById('btn').textContent = '0%';
+}
+
+// UPDATED: Auto-correct typos + Any brand works
 function gen(){
-  let phone = document.getElementById('phone').value.trim().toLowerCase();
-  if(!phone){ alert('Enter phone name first'); return; }
+  let phoneSelect = document.getElementById('phone').value;
+  let otherInput = document.getElementById('otherPhoneInput').value.trim();
+  
+  let phone = phoneSelect === 'other' ? otherInput : phoneSelect;
+  
+  if(!phone){ 
+    alert('⚠️ Please select your phone model first'); 
+    document.getElementById('phone').style.borderColor = '#ef4444';
+    setTimeout(()=>{document.getElementById('phone').style.borderColor = '#334155'}, 2000);
+    return; 
+  }
+  
+  if(phoneSelect === 'other'){
+    let input = otherInput.toLowerCase();
+    
+    // AUTO-CORRECT COMMON TYPOS
+    input = input.replace(/sumsung|sumasung|samusng/gi, 'samsung');
+    input = input.replace(/redmi|redmii|rdemi/gi, 'redmi');
+    input = input.replace(/realme|realme|reame/gi, 'realme');
+    input = input.replace(/infinix|infinixs/gi, 'infinix');
+    input = input.replace(/tecno|teno/gi, 'tecno');
+    input = input.replace(/nokia|nokla/gi, 'nokia');
+    input = input.replace(/iphone|iphne/gi, 'iphone');
+    
+    // Update input field so user sees correction
+    document.getElementById('otherPhoneInput').value = input;
+    
+    // Check format instead of brand list - any brand works
+    if(input.length < 4){
+      alert('⚠️ Phone model too short. Example: Samsung A23, Redmi Note 12');
+      resetSliders();
+      document.getElementById('otherPhoneInput').style.borderColor = '#ef4444';
+      setTimeout(()=>{document.getElementById('otherPhoneInput').style.borderColor = '#334155'}, 2000);
+      return;
+    }
+    
+    if(!/\d/.test(input)){
+      alert('⚠️ Invalid phone model. Real phones have numbers. Example: Samsung A23');
+      resetSliders();
+      document.getElementById('otherPhoneInput').style.borderColor = '#ef4444';
+      setTimeout(()=>{document.getElementById('otherPhoneInput').style.borderColor = '#334155'}, 2000);
+      return;
+    }
+    
+    let words = input.split(' ').filter(w => w.length > 0);
+    if(words.length < 2){
+      alert('⚠️ Enter brand + model. Example: Samsung A23, Redmi Note 12');
+      resetSliders();
+      document.getElementById('otherPhoneInput').style.borderColor = '#ef4444';
+      setTimeout(()=>{document.getElementById('otherPhoneInput').style.borderColor = '#334155'}, 2000);
+      return;
+    }
+    
+    let badWords = ['rubbish', 'test', 'asdf', 'qwerty', 'abc', 'xyz', 'none', 'null'];
+    if(badWords.some(word => input.includes(word))){
+      alert('⚠️ Please enter a real phone model name');
+      resetSliders();
+      document.getElementById('otherPhoneInput').style.borderColor = '#ef4444';
+      setTimeout(()=>{document.getElementById('otherPhoneInput').style.borderColor = '#334155'}, 2000);
+      return;
+    }
+    
+    phone = input; // use corrected phone name for seed
+  }
   
   let seed = hashCode(phone);
   
-  set('general', randSeed(seed+1, 95, 110));
-  set('reddot', randSeed(seed+2, 90, 105));
-  set('scope2x', randSeed(seed+3, 85, 100));
-  set('scope4x', randSeed(seed+4, 80, 95));
-  set('sniper', randSeed(seed+5, 55, 70));
-  set('free', randSeed(seed+6, 70, 85));
-  
-  document.getElementById('dpi').textContent = randSeed(seed+7, 650, 800);
-  document.getElementById('btn').textContent = randSeed(seed+8, 50, 60) + '%';
+  if(phoneSelect === 'group_iphone'){
+    set('general', randSeed(seed+1, 85, 95));
+    set('reddot', randSeed(seed+2, 80, 90));
+    set('scope2x', randSeed(seed+3, 75, 85));
+    set('scope4x', randSeed(seed+4, 70, 80));
+    set('sniper', randSeed(seed+5, 45, 55));
+    set('free', randSeed(seed+6, 60, 70));
+    document.getElementById('dpi').textContent = 'N/A';
+    document.getElementById('btn').textContent = randSeed(seed+8, 45, 55) + '%';
+  } else {
+    set('general', randSeed(seed+1, 95, 110));
+    set('reddot', randSeed(seed+2, 90, 105));
+    set('scope2x', randSeed(seed+3, 85, 100));
+    set('scope4x', randSeed(seed+4, 80, 95));
+    set('sniper', randSeed(seed+5, 55, 70));
+    set('free', randSeed(seed+6, 70, 85));
+    document.getElementById('dpi').textContent = randSeed(seed+7, 650, 800);
+    document.getElementById('btn').textContent = randSeed(seed+8, 50, 60) + '%';
+  }
 }
 
 function set(id,val){
